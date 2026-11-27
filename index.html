@@ -1,0 +1,307 @@
+<!doctype html>
+<!-- The doctype line tells the browser "this is a modern HTML5 page". It always goes first. -->
+<html lang="en-GB">
+<!-- <html> wraps the whole page. lang="en-GB" says the text is British English. That helps screen readers and translation tools. -->
+
+<head>
+    <!-- <head> holds information ABOUT the page. None of this is shown on the page itself. -->
+
+    <!-- charset="utf-8" lets the page show symbols like the en dash (–) and curly apostrophes (’) correctly. -->
+    <meta charset="utf-8">
+
+    <!-- The viewport tag makes the page fit a phone screen instead of shrinking to look like a tiny desktop page.
+         viewport-fit=cover lets it use the full screen on phones with notches. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <!-- The title appears on the browser tab. -->
+    <title>Doing the 92</title>
+
+    <!-- Loads two fonts (Barlow and Barlow Condensed) from Google Fonts. Needs an internet connection. -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- Connects this page to style.css, which holds all the colours, spacing and layout.
+         The HTML says WHAT things are; the CSS says how they LOOK. -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- <body> holds everything you can actually see on the page. -->
+
+    <!-- <main> marks the main content of the page. It works like a div but tells browsers what it is for. -->
+    <main>
+        <!-- <h1> is the main heading. A page should have only one. -->
+        <h1>Doing the 92</h1>
+
+        <!-- <p> is a paragraph. class="sub" is a label that the CSS uses to style this paragraph. -->
+        <p class="sub">Every Premier League and EFL ground for the 2026–27 season. Dan and Seth can tick them off as
+            they go.</p>
+
+        <!-- PROGRESS BOXES
+             <div> is a generic container with no meaning of its own. It is used to group things for layout.
+             class="prog two" has TWO classes: "prog" (the box look) and "two" (a two-column layout). -->
+        <div class="prog two">
+            <!-- One column per person. <span> is a small inline container for a bit of text. -->
+            <div><span class="who">Dan</span>
+                <!-- <b> makes text bold. The id values (nd, od, bd) are unique names the JavaScript uses
+                     to find these elements later and change them. nd = "number, Dan", od = "of, Dan", bd = "bar, Dan". -->
+                <b id="nd">0</b> <span id="od">of 92</span>
+                <!-- The progress bar: an outer track (.bar) with an inner <i> whose width the JavaScript changes. -->
+                <div class="bar"><i id="bd"></i></div>
+            </div>
+            <!-- Seth's column is the same, with ids ending in "s". -->
+            <div><span class="who">Seth</span><b id="ns">0</b> <span id="os">of 92</span>
+                <div class="bar"><i id="bs"></i></div>
+            </div>
+        </div>
+
+        <!-- GAMES LOG
+             <details> is a built-in collapsible box. It opens and closes when you click the <summary>. No JavaScript needed. -->
+        <details class="log">
+            <summary>Games log <span id="gc">(0)</span></summary>
+            <!-- The (0) is replaced by the real number of games by the JavaScript (renderLog function). -->
+
+            <!-- <form> groups input fields. The JavaScript listens for it being submitted (see "submit" below). -->
+            <form id="gf" class="gf">
+                <!-- A <label> is the text that describes an input. Putting the <input> inside the label
+                     means clicking the text also selects the input.
+                     "required" stops the form being submitted while the field is empty. -->
+                <label>Date<input type="date" id="gd" required></label>
+
+                <!-- The ground box. list="gdl" connects it to the <datalist> with id="gdl" just after it.
+                     A datalist gives the browser a set of suggestions to show while you type.
+                     The JavaScript fills the datalist with the 92 grounds when the page loads.
+                     autocomplete="off" turns off the browser's own remembered suggestions. -->
+                <label>Ground<input id="gg" list="gdl" placeholder="Search ground or club" autocomplete="off"
+                        required><datalist id="gdl"></datalist></label>
+
+                <!-- maxlength limits how many characters can be typed. -->
+                <label>Home team<input id="gh" maxlength="40" required></label>
+                <label>Away team<input id="ga" maxlength="40" required></label>
+
+                <!-- type="number" only allows numbers. min and max set the allowed range.
+                     inputmode="numeric" makes phones show the number keypad. -->
+                <label>Home goals<input id="ghg" type="number" min="0" max="99" inputmode="numeric"></label>
+                <label>Away goals<input id="gag" type="number" min="0" max="99" inputmode="numeric"></label>
+                <label>Attendance<input id="gat" type="number" min="0" inputmode="numeric"></label>
+                <label>Away attendance<input id="gaa" type="number" min="0" inputmode="numeric"></label>
+
+                <!-- Two tick boxes. type="checkbox" makes a box you tick. The value ("dan" or "seth")
+                     is what the JavaScript reads to know who went. -->
+                <div class="who2"><span>Who went</span><label><input type="checkbox"
+                            value="dan">Dan</label><label><input type="checkbox" value="seth">Seth</label></div>
+
+                <!-- A button of type="submit" sends the form. The browser checks the "required" fields first. -->
+                <button type="submit">Add game</button>
+
+                <!-- Two empty paragraphs the JavaScript fills in: an error message and a success message.
+                     role="alert" and role="status" tell screen readers to announce them when they change. -->
+                <p id="gerr" class="err" role="alert"></p>
+                <p id="gok" class="ok" role="status"></p>
+            </form>
+
+            <!-- <a> is a link. href is where it goes. This opens the separate games page. -->
+            <p class="lnk"><a href="games.html">View all logged games</a></p>
+        </details>
+
+        <!-- SEARCH AND FILTER CONTROLS -->
+        <div class="ctl">
+            <!-- type="search" is a text box meant for searching. -->
+            <input id="q" type="search" placeholder="Search club, ground or town" aria-label="Search">
+            <!-- data-f is a custom "data attribute". Any attribute starting with data- is yours to use.
+                 The JavaScript reads it (b.dataset.f) to know which filter this button means.
+                 aria-pressed tells screen readers which button is currently selected. -->
+            <button data-f="-1" aria-pressed="true">All</button>
+            <button data-f="dan" aria-pressed="false">Dan to visit</button>
+            <button data-f="seth" aria-pressed="false">Seth to visit</button>
+        </div>
+
+        <!-- An empty container. The JavaScript builds the whole list of 92 grounds and puts it in here. -->
+        <div id="out"></div>
+
+        <p class="note">Co-Authored With Claude.</p>
+    </main>
+
+    <!-- Everything inside the script tags is JavaScript. It runs top to bottom once the page has loaded this far.
+         It sits at the end of <body> so the HTML above already exists when the code looks for it. -->
+    <script>
+        /* ---------- 1. THE DATA ----------
+           T is an array (a list) of divisions. Each division is [name, list of clubs].
+           Each club is one piece of text with three parts separated by "|":
+           club name | ground name | town.
+           The code later splits each piece on "|" to get the three parts back. */
+        const T = [
+            ["Premier League",[
+            "Arsenal|Emirates Stadium|London","Aston Villa|Villa Park|Birmingham","AFC Bournemouth|Vitality Stadium|Bournemouth","Brentford|Gtech Community Stadium|London","Brighton & Hove Albion|American Express Stadium|Brighton","Chelsea|Stamford Bridge|London","Coventry City|Coventry Building Society Arena|Coventry","Crystal Palace|Selhurst Park|London","Everton|Hill Dickinson Stadium|Liverpool","Fulham|Craven Cottage|London","Hull City|MKM Stadium|Hull","Ipswich Town|Portman Road|Ipswich","Leeds United|Elland Road|Leeds","Liverpool|Anfield|Liverpool","Manchester City|Etihad Stadium|Manchester","Manchester United|Old Trafford|Manchester","Newcastle United|St James’ Park|Newcastle","Nottingham Forest|City Ground|Nottingham","Sunderland|Stadium of Light|Sunderland","Tottenham Hotspur|Tottenham Hotspur Stadium|London"]],
+            ["Championship",[
+            "Birmingham City|St Andrew’s @ Knighthead Park|Birmingham","Blackburn Rovers|Ewood Park|Blackburn","Bolton Wanderers|Toughsheet Community Stadium|Bolton","Bristol City|Ashton Gate|Bristol","Burnley|Turf Moor|Burnley","Cardiff City|Cardiff City Stadium|Cardiff","Charlton Athletic|The Valley|London","Derby County|Pride Park|Derby","Lincoln City|LNER Stadium|Lincoln","Middlesbrough|Riverside Stadium|Middlesbrough","Millwall|The Den|London","Norwich City|Carrow Road|Norwich","Portsmouth|Fratton Park|Portsmouth","Preston North End|Deepdale|Preston","Queens Park Rangers|Loftus Road|London","Sheffield United|Bramall Lane|Sheffield","Southampton|St Mary’s Stadium|Southampton","Stoke City|bet365 Stadium|Stoke-on-Trent","Swansea City|Swansea.com Stadium|Swansea","Watford|Vicarage Road|Watford","West Bromwich Albion|The Hawthorns|West Bromwich","West Ham United|London Stadium|London","Wolverhampton Wanderers|Molineux|Wolverhampton","Wrexham|Racecourse Ground|Wrexham"]],
+            ["League One",[
+            "AFC Wimbledon|Plough Lane|London","Barnsley|Oakwell|Barnsley","Blackpool|Bloomfield Road|Blackpool","Bradford City|Valley Parade|Bradford","Bromley|Hayes Lane|Bromley","Burton Albion|Pirelli Stadium|Burton upon Trent","Cambridge United|Abbey Stadium|Cambridge","Doncaster Rovers|Eco-Power Stadium|Doncaster","Huddersfield Town|John Smith’s Stadium|Huddersfield","Leicester City|King Power Stadium|Leicester","Leyton Orient|Brisbane Road|London","Luton Town|Kenilworth Road|Luton","Mansfield Town|Field Mill|Mansfield","MK Dons|Stadium MK|Milton Keynes","Notts County|Meadow Lane|Nottingham","Oxford United|Kassam Stadium|Oxford","Peterborough United|London Road|Peterborough","Plymouth Argyle|Home Park|Plymouth","Reading|Madejski Stadium|Reading","Sheffield Wednesday|Hillsborough|Sheffield","Stevenage|Lamex Stadium|Stevenage","Stockport County|Edgeley Park|Stockport","Wigan Athletic|Brick Community Stadium|Wigan","Wycombe Wanderers|Adams Park|High Wycombe"]],
+            ["League Two",[
+            "Accrington Stanley|Wham Stadium|Accrington","Barnet|The Hive|London","Bristol Rovers|Memorial Stadium|Bristol","Cheltenham Town|Whaddon Road|Cheltenham","Chesterfield|SMH Group Stadium|Chesterfield","Colchester United|Colchester Community Stadium|Colchester","Crawley Town|Broadfield Stadium|Crawley","Crewe Alexandra|Mornflake Stadium|Crewe","Exeter City|St James Park|Exeter","Fleetwood Town|Highbury Stadium|Fleetwood","Gillingham|Priestfield Stadium|Gillingham","Grimsby Town|Blundell Park|Cleethorpes","Newport County|Rodney Parade|Newport","Northampton Town|Sixfields|Northampton","Oldham Athletic|Boundary Park|Oldham","Port Vale|Vale Park|Stoke-on-Trent","Rochdale|Spotland|Rochdale","Rotherham United|New York Stadium|Rotherham","Salford City|Peninsula Stadium|Salford","Shrewsbury Town|Croud Meadow|Shrewsbury","Swindon Town|County Ground|Swindon","Tranmere Rovers|Prenton Park|Birkenhead","Walsall|Bescot Stadium|Walsall","York City|LNER Community Stadium|York"]]
+        ];
+
+        /* ---------- 2. SAVED TICKS (the "state") ---------- */
+
+        // KEY is the name the ticks are saved under in the browser's storage.
+        // P is the list of people, used to loop over Dan and Seth.
+        const KEY = "doing-the-92-v2", P = ["dan", "seth"];
+
+        // done holds who has visited what. A Set is a list that cannot contain duplicates, which suits ticks.
+        // filter remembers which button is selected. term remembers what is typed in the search box.
+        // "let" is used because these values change. "const" is for values that never get reassigned.
+        let done = { dan: new Set(), seth: new Set() }, filter = "-1", term = "";
+
+        // Load saved ticks. localStorage is a small store inside the browser that survives closing the page.
+        // It only stores text, so the ticks are saved as JSON text and converted back with JSON.parse.
+        // try/catch means "try this, and if it fails (for example, nothing saved yet), carry on without crashing".
+        try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) P.forEach(p => done[p] = new Set(s[p] || [])) } catch (e) { }
+
+        // Save the ticks. [...done.dan] turns a Set into a normal array so it can be turned into text.
+        function save() { try { localStorage.setItem(KEY, JSON.stringify({ dan: [...done.dan], seth: [...done.seth] })) } catch (e) { } }
+
+        // Makes text safe to put inside HTML. Characters like & and < have special meaning in HTML,
+        // so they are swapped for safe versions (&amp; &lt; &quot;). It stops odd text breaking the page.
+        function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;") }
+
+        /* ---------- 3. DRAWING THE PAGE ----------
+           render() rebuilds the list of grounds and the progress bars from the current data.
+           It runs on page load and again after every tick, search, filter change and added game. */
+        function render() {
+            let html = "", total = 0;   // html collects the page markup as text; total counts all the grounds
+
+            // Go through each division (Premier League, Championship...).
+            // ([name, list]) unpacks each division into its name and its list of clubs.
+            T.forEach(([name, list]) => {
+                // Turn each "club|ground|town" text into an array: [club, ground, town].
+                const rows = list.map(r => r.split("|"));
+                total += rows.length;
+
+                // Work out which rows to show, based on the selected filter button and the search box.
+                // filter() keeps only the rows where the function returns true.
+                const vis = rows.filter(r => {
+                    if (filter === "dan" && done.dan.has(r[0])) return false;    // hide grounds Dan has done
+                    if (filter === "seth" && done.seth.has(r[0])) return false;  // hide grounds Seth has done
+                    // Show the row if the search box is empty, or if the search text appears in the club, ground or town.
+                    return !term || r.join(" ").toLowerCase().includes(term);
+                });
+                if (!vis.length) return;   // nothing to show in this division, so skip its heading too
+
+                // Counts like "3/24": how many clubs in this division a person has ticked.
+                const cnt = p => rows.filter(r => done[p].has(r[0])).length + "/" + rows.length;
+
+                // Build the markup for this division. Text in `backticks` is a "template literal":
+                // anything inside ${ } is replaced by its value.
+                html += `<div class="hd"><h2>${name}</h2><span>Dan<br>${cnt("dan")}</span><span>Seth<br>${cnt("seth")}</span></div>` + vis.map(r => {
+                    const c = esc(r[0]);   // the club name, made safe for HTML
+                    // box() makes one tick box. data-p and data-c store the person and the club on the box itself,
+                    // so the code knows exactly which tick was clicked. The "checked" attribute is added if already ticked.
+                    const box = (p, n) => `<label><input type="checkbox" data-p="${p}" data-c="${c}" aria-label="${n} visited ${c}"${done[p].has(r[0]) ? " checked" : ""}></label>`;
+                    // One row: ground name, club and town on the left, then Dan's box and Seth's box.
+                    return `<div class="r"><div><span class="t">${esc(r[1])}</span><span class="g">${c}, ${esc(r[2])}</span></div>${box("dan", "Dan")}${box("seth", "Seth")}</div>`;
+                }).join("");   // join("") glues the list of rows into one long piece of text
+            });
+
+            // Put the finished markup into the empty <div id="out"> on the page.
+            document.getElementById("out").innerHTML = html || '<p class="empty">No grounds match.</p>';
+
+            renderLog();   // update the "(0)" count on the Games log heading (function defined further down)
+
+            // Update both progress boxes. k is the first letter of the name ("d" or "s"),
+            // so "n" + k is "nd" or "ns", matching the ids in the HTML above.
+            P.forEach(p => {
+                const n = done[p].size, k = p[0];
+                document.getElementById("n" + k).textContent = n;                      // the big number
+                document.getElementById("o" + k).textContent = "of " + total;          // "of 92"
+                document.getElementById("b" + k).style.width = (n / total * 100) + "%"; // bar width as a percentage
+            });
+        }
+
+        /* ---------- 4. REACTING TO THE USER ----------
+           An "event listener" waits for something to happen (click, typing...) and then runs a function. */
+
+        // One listener on the whole list catches every tick box change ("event delegation").
+        // That is simpler than attaching 184 separate listeners, and still works after render() rebuilds the list.
+        document.getElementById("out").addEventListener("change", e => {
+            // e.target is the thing that changed. dataset reads its data-p and data-c attributes.
+            const p = e.target.dataset.p, c = e.target.dataset.c; if (!p) return;
+            // If the box is now ticked, add the club to the person's Set. Otherwise remove it.
+            e.target.checked ? done[p].add(c) : done[p].delete(c); save(); render();
+        });
+
+        // Typing in the search box: store the text (trimmed, lower case) and redraw.
+        document.getElementById("q").addEventListener("input", e => { term = e.target.value.trim().toLowerCase(); render() });
+
+        // Filter buttons: loop over all three and give each a click listener.
+        document.querySelectorAll(".ctl button").forEach(b => b.addEventListener("click", () => {
+            filter = b.dataset.f;   // read the data-f value from the clicked button
+            // Mark only the clicked button as pressed (x === b is true for just that one).
+            document.querySelectorAll(".ctl button").forEach(x => x.setAttribute("aria-pressed", x === b));
+            render();
+        }));
+
+        /* ---------- 5. THE GAMES LOG ---------- */
+
+        // Load saved games from storage, the same way the ticks were loaded.
+        const GKEY = "doing-the-92-games";
+        let games = [];
+        try { const g = JSON.parse(localStorage.getItem(GKEY)); if (Array.isArray(g)) games = g } catch (e) { }
+        function saveGames() { try { localStorage.setItem(GKEY, JSON.stringify(games)) } catch (e) { } }
+
+        // G is a lookup table: G["Bristol Rovers"] gives ["Bristol Rovers", "Memorial Stadium", "Bristol"].
+        const G = {}; T.forEach(([, l]) => l.forEach(r => { const x = r.split("|"); G[x[0]] = x }));
+
+        // Grab the form elements once and give them short names, so the code below is easier to read.
+        const gf = document.getElementById("gf"), gg = document.getElementById("gg"), gd = document.getElementById("gd"), gh = document.getElementById("gh"), ga = document.getElementById("ga"), ghg = document.getElementById("ghg"), gag = document.getElementById("gag"), gat = document.getElementById("gat"), gaa = document.getElementById("gaa"), gerr = document.getElementById("gerr");
+
+        // Fill the datalist so the Ground box can suggest grounds as you type.
+        // L is a second lookup table that turns what the user typed into the club name.
+        // Each ground can be found by "Ground (Club)", by ground name alone, or by club name alone.
+        const L = {};
+        document.getElementById("gdl").innerHTML = Object.values(G).sort((a, b) => a[1].localeCompare(b[1])).map(r => { const v = r[1] + " (" + r[0] + ")"; L[v.toLowerCase()] = r[0]; L[r[1].toLowerCase()] = L[r[1].toLowerCase()] || r[0]; L[r[0].toLowerCase()] = r[0]; return `<option value="${esc(v)}"></option>` }).join("");
+
+        // club() returns the club for whatever is typed in the Ground box, or "" if it matches nothing.
+        const club = () => L[gg.value.trim().toLowerCase()] || "";
+
+        // Default the date box to today. toISOString() gives text like "2026-11-27T10:00:00Z";
+        // slice(0, 10) keeps just the first 10 characters, the date part.
+        gd.value = new Date().toISOString().slice(0, 10);
+
+        // When the ground matches a club, fill in the Home team box automatically (it can still be changed).
+        gg.addEventListener("input", () => { const c = club(); if (c) gh.value = c });
+
+        // Shows how many games are logged in the "Games log (0)" heading.
+        // This is a "function declaration", so JavaScript makes it available to the whole script,
+        // which is why render() above can call it even though it is written further down.
+        function renderLog() { document.getElementById("gc").textContent = "(" + games.length + ")" }
+
+        // When "Add game" is pressed and the form's required fields are filled in, this runs.
+        gf.addEventListener("submit", e => {
+            e.preventDefault();   // stop the browser's default action of reloading the page when a form is submitted
+
+            // Find which "Who went" boxes are ticked and collect their values into a list, e.g. ["dan", "seth"].
+            const who = [...gf.querySelectorAll(".who2 input:checked")].map(x => x.value);
+            if (!who.length) { gerr.textContent = "Tick Dan, Seth or both."; return }   // "return" stops here
+
+            const c = club(); if (!c) { gerr.textContent = "Pick a ground from the list."; return }
+            gerr.textContent = "";   // clear any old error message
+
+            // Add the new game to the list as an "object": a bundle of named values.
+            // The id is made from the current time plus random characters so every game has a unique one.
+            games.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), date: gd.value, club: c, ground: G[c][1], home: gh.value.trim(), away: ga.value.trim(), hg: ghg.value, ag: gag.value, att: gat.value, aatt: gaa.value, who });
+
+            who.forEach(p => done[p].add(c));   // also tick the ground for everyone who went
+            save(); saveGames();                // store both the ticks and the games
+
+            // Clear the form ready for the next game, show the success message, and untick the Who went boxes.
+            gg.value = ""; gh.value = ""; ga.value = ghg.value = gag.value = gat.value = gaa.value = ""; document.getElementById("gok").textContent = "Game added."; gf.querySelectorAll(".who2 input").forEach(x => x.checked = false);
+            render();   // redraw so the new tick and the games count show up
+        });
+
+        // The very last line: draw the page for the first time when it loads.
+        render();
+    </script>
+</body>
+
+</html>

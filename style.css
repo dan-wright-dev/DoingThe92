@@ -1,0 +1,526 @@
+/* =====================================================================
+   style.css - controls how the pages LOOK.
+   The HTML files say what each thing is. This file says its colours,
+   sizes, spacing and layout.
+
+   How a CSS rule works:
+       selector { property: value; }
+   The selector picks which elements to style. Each property inside the
+   curly brackets changes one thing about them.
+   Selector types used here:
+       p        an element type (every <p>)
+       .sub     a class (anything with class="sub")
+       #name    an id (not used in this file)
+       .a .b    "descendant": a .b inside an .a
+       .a.b     both classes on the same element
+       a, b     a comma means "this rule applies to both"
+   ===================================================================== */
+
+
+/* ---------------------------------------------------------------------
+   1. COLOUR VARIABLES
+   Names starting with -- are "custom properties" (variables). They are
+   defined once here and used everywhere as var(--name). To change a
+   colour across the whole site, change it in one place.
+   :root means the top of the page, so the variables are available everywhere.
+   --------------------------------------------------------------------- */
+:root {
+  --bg: #eef2f4;      /* page background */
+  --card: #fff;       /* background of boxes and rows */
+  --ink: #14232b;     /* main text colour */
+  --mute: #5b6b73;    /* quieter grey text */
+  --line: #d3dde2;    /* thin border lines */
+  --acc: #1c6b3a;     /* accent colour (green) for ticks, buttons and bars */
+  --on: #fff4d6;      /* highlight colour (not used by the current pages) */
+  --onl: #e8a317;     /* amber highlight (not used by the current pages) */
+  color-scheme: light;  /* tells the browser to draw its own controls (date picker etc.) in light mode */
+  box-sizing: border-box;  /* see the box-sizing rule below */
+  /* env(safe-area-inset-...) leaves room for phone notches and home bars.
+     The ", 0px" part is the fallback used on devices that don't report one. */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* DARK MODE
+   @media (prefers-color-scheme: dark) only applies when the visitor's device is set to dark mode.
+   Inside it, the same variable names get new dark values, so everything that uses
+   var(--bg) and friends switches colour automatically.
+   :not([data-theme="light"]) means "unless the page has been forced to light mode". */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e171b;
+    --card: #162228;
+    --ink: #e6eef1;
+    --mute: #93a5ad;
+    --line: #26363d;
+    --acc: #4fc47f;
+    --on: #2c2510;
+    --onl: #e8a317;
+    color-scheme: dark;
+  }
+}
+
+/* Lets a page force dark mode by adding data-theme="dark" to the <html> tag. */
+:root[data-theme="dark"] {
+  --bg: #0e171b;
+  --card: #162228;
+  --ink: #e6eef1;
+  --mute: #93a5ad;
+  --line: #26363d;
+  --acc: #4fc47f;
+  --on: #2c2510;
+  --onl: #e8a317;
+  color-scheme: dark;
+}
+
+
+/* ---------------------------------------------------------------------
+   2. BASIC PAGE SETUP
+   --------------------------------------------------------------------- */
+
+/* * matches every element. border-box means an element's width INCLUDES its padding and border,
+   which makes sizes much easier to predict. */
+* {
+  box-sizing: border-box;
+}
+
+/* When the browser scrolls to a link target, keep it clear of the top safe area. */
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  margin: 0;                       /* removes the browser's default gap around the page */
+  background: var(--bg);
+  color: var(--ink);
+  /* "font" is a shorthand for: weight size/line-height family-list.
+     400 = normal weight, 16px text, 1.4 = line height (1.4 times the text size).
+     The browser uses the first font it has: Barlow, else the device's system font, else any sans-serif. */
+  font: 400 16px/1.4 Barlow, system-ui, sans-serif;
+}
+
+/* The main content column. */
+main {
+  max-width: 900px;       /* never wider than 900px, so lines stay readable on big screens */
+  margin: 0 auto;         /* "0 auto" = no top/bottom margin, and equal automatic left/right margins, which centres it */
+  padding: 20px 16px 48px;  /* space inside: top 20px, left and right 16px, bottom 48px */
+}
+
+/* The big page title. */
+h1 {
+  /* clamp(smallest, preferred, largest) picks a size that scales with the screen width:
+     12vw is 12% of the window width, but never below 44px or above 84px.
+     The "/ 0.9" is the line height, so lines sit tightly together. */
+  font: 700 clamp(44px, 12vw, 84px) / 0.9 "Barlow Condensed", Impact, sans-serif;
+  margin: 8px 0 1.5rem;     /* top 8px, sides 0, bottom 1.5rem (1rem = the root font size, normally 16px) */
+  letter-spacing: -0.5px;   /* pulls the letters slightly closer together */
+}
+
+/* The paragraph under the title. */
+.sub {
+  color: var(--mute);
+  margin: 0 0 18px;     /* margin order is top, right/left, bottom: so only 18px underneath */
+}
+
+
+/* ---------------------------------------------------------------------
+   3. PROGRESS BOXES (Dan and Seth at the top)
+   --------------------------------------------------------------------- */
+.prog {
+  background: var(--card);
+  border: 1px solid var(--line);    /* width, style, colour */
+  border-radius: 6px;               /* rounded corners */
+  padding: 14px 16px;               /* space between the border and the content */
+  margin-bottom: 14px;              /* space outside the box, pushing the next thing down */
+}
+
+/* ".prog b" = a <b> (bold) inside an element with class "prog": the big number. */
+.prog b {
+  font: 700 34px/1 "Barlow Condensed", sans-serif;
+}
+
+/* The grey track of the progress bar. */
+.bar {
+  height: 10px;
+  background: var(--line);
+  border-radius: 5px;
+  margin-top: 10px;
+  overflow: hidden;     /* anything poking outside the rounded corners is clipped */
+}
+
+/* The green fill inside the track. The JavaScript sets its width, for example 25%. */
+.bar i {
+  display: block;       /* an <i> is normally inline text; block lets it take a width and height */
+  height: 100%;         /* as tall as the track */
+  width: 0;             /* starting width; the JavaScript changes this */
+  background: var(--acc);
+  transition: width 0.3s;   /* when the width changes, slide to the new value over 0.3 seconds */
+}
+
+
+/* ---------------------------------------------------------------------
+   4. SEARCH BOX AND FILTER BUTTONS
+   --------------------------------------------------------------------- */
+.ctl {
+  display: flex;        /* flexbox: lays children out in a row */
+  flex-wrap: wrap;      /* if they don't fit, wrap onto the next line */
+  gap: 8px;             /* space between the items */
+  margin-bottom: 6px;
+}
+
+.ctl input {
+  flex: 1 1 180px;      /* shorthand: grow, shrink, starting size. It stretches to fill spare space but starts at 180px */
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;        /* use the same font as the surrounding text (inputs ignore it by default) */
+}
+
+.ctl button {
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--ink);
+  font: 500 14px Barlow, sans-serif;
+  cursor: pointer;      /* shows the hand icon when hovering */
+}
+
+/* An "attribute selector": matches a button whose aria-pressed attribute equals "true",
+   which the JavaScript sets on the selected filter. It gets the green "selected" look. */
+.ctl button[aria-pressed="true"] {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: var(--bg);
+}
+
+/* Keyboard focus ring. :focus-visible applies when you reach something with the Tab key.
+   label:has(input:focus-visible) means "a label that contains a focused input",
+   so the whole tick-box area gets the ring. */
+button:focus-visible,
+input:focus-visible,
+label:has(input:focus-visible) {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;    /* gap between the element and its outline */
+}
+
+
+/* ---------------------------------------------------------------------
+   5. THE LIST OF GROUNDS
+   --------------------------------------------------------------------- */
+
+/* Division names such as "Premier League". */
+h2 {
+  font: 700 28px/1 "Barlow Condensed", sans-serif;
+  margin: 0;
+}
+
+/* .hd = the heading row for each division, .r = one ground row.
+   Both use CSS Grid: display: grid makes rows and columns.
+   grid-template-columns: 1fr 60px 60px = three columns: the first takes all leftover space
+   ("1fr" = one fraction of the free space), the other two are fixed at 60px wide.
+   Those two narrow columns are where Dan's and Seth's tick boxes sit. */
+.hd,
+.r {
+  display: grid;
+  grid-template-columns: 1fr 60px 60px;
+  align-items: center;    /* vertically centre the items in each row */
+}
+
+.hd {
+  margin: 28px 0 8px;
+  align-items: end;       /* overrides the rule above: line things up along the bottom */
+}
+
+/* The small "Dan 3/24" and "Seth 2/24" labels above the tick columns. */
+.hd span {
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--mute);
+}
+
+/* One ground row. */
+.r {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 0 6px 14px;    /* no padding on the right, so the tick columns reach the edge */
+  margin-bottom: 8px;
+}
+
+/* The clickable area around each tick box. */
+.r label {
+  display: flex;
+  justify-content: center;    /* centre the tick box horizontally */
+  padding: 8px 0;             /* makes the tap target taller and easier to hit */
+  cursor: pointer;
+}
+
+.r input {
+  width: 24px;
+  height: 24px;
+  accent-color: var(--acc);   /* colours the tick box when it is ticked */
+}
+
+/* The ground name (bold-ish) and the line under it with club and town. */
+.t {
+  display: block;       /* spans are inline by default; block puts each on its own line */
+  font-weight: 500;
+}
+
+.g {
+  display: block;
+  color: var(--mute);
+  font-size: 14px;
+}
+
+/* A two-equal-columns layout, used for the Dan and Seth progress boxes. */
+.two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;   /* two columns of equal width */
+  gap: 16px;
+}
+
+.who {
+  display: block;
+  color: var(--mute);
+  font-weight: 500;
+}
+
+/* The "No grounds match." message. */
+.empty {
+  color: var(--mute);
+  padding: 12px 0;
+}
+
+/* The footer line. */
+.note {
+  color: var(--mute);
+  font-size: 14px;
+  margin-top: 28px;
+}
+
+
+/* ---------------------------------------------------------------------
+   6. GAMES LOG PANEL AND FORM (on the main page)
+   --------------------------------------------------------------------- */
+
+/* The collapsible <details> box. */
+.log {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 16px;
+  margin-bottom: 14px;
+}
+
+/* The clickable "Games log" heading. */
+.log summary {
+  cursor: pointer;
+  padding: 14px 0;
+  font: 700 24px/1 "Barlow Condensed", sans-serif;
+}
+
+.log summary span {
+  color: var(--mute);     /* makes the "(0)" count grey */
+}
+
+/* The form is a two-column grid, so fields sit in pairs. */
+.gf {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding-bottom: 14px;
+}
+
+/* Each label stacks its text above its input. flex-direction: column stacks vertically. */
+.gf label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--mute);
+}
+
+/* grid-column: 1 / -1 means "start at the first column line and end at the last",
+   so these items stretch across both columns. (.wide is no longer used by the page.) */
+.gf .wide,
+.gf .err {
+  grid-column: 1 / -1;
+}
+
+/* :not([type="checkbox"]) means "every input EXCEPT tick boxes", so text, number and date boxes
+   get this look. (.gf select is no longer used now that the ground box is a text input.) */
+.gf input:not([type="checkbox"]),
+.gf select {
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+}
+
+.gf input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--acc);
+}
+
+/* The "Who went" row with the two tick boxes. */
+.who2 {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 14px;
+  color: var(--mute);
+}
+
+/* More specific than ".gf label" above, so it wins: here the label lays out in a row, not a column. */
+.gf .who2 label {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink);
+}
+
+/* The "Add game" button. */
+.gf button {
+  justify-self: start;      /* keep it its natural size at the left instead of stretching */
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--acc);
+  color: var(--bg);
+  font: 500 14px Barlow, sans-serif;
+  cursor: pointer;
+}
+
+/* Error message under the form. */
+.err {
+  margin: 0;
+  font-weight: 500;
+}
+
+/* :empty matches an element with nothing inside it. The message paragraphs start empty,
+   so this hides them until the JavaScript puts text in. */
+.err:empty {
+  display: none;
+}
+
+/* The next four rules style a list of games inside the main page.
+   That list now lives on games.html, so these rules are no longer used and could be deleted. */
+.gl {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.gl li {
+  display: grid;
+  grid-template-columns: 1fr auto;    /* "auto" = as wide as its content needs */
+  gap: 8px;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.gl button {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--ink);
+  font: 500 13px Barlow, sans-serif;
+  cursor: pointer;
+}
+
+/* Focus ring for the "Games log" heading when reached with the keyboard. */
+summary:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+
+
+/* ---------------------------------------------------------------------
+   7. LINKS, MESSAGES AND THE GAMES TABLE
+   --------------------------------------------------------------------- */
+
+/* All links use the accent colour. */
+a {
+  color: var(--acc);
+}
+
+/* "Back to the 92" link on games.html. inline-block lets it have a top margin like a box. */
+.back {
+  display: inline-block;
+  margin-top: 8px;
+}
+
+/* The paragraph holding the "View all logged games" link. */
+.lnk {
+  margin: 0;
+  padding: 0 0 14px;
+}
+
+/* The green "Game added." message. Hidden while empty (see .ok:empty below). */
+.ok {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 14px;
+  color: var(--acc);
+}
+
+.ok:empty {
+  display: none;
+}
+
+/* A wrapper around the table. overflow-x: auto adds a sideways scroll bar ONLY when the table
+   is wider than the screen, so on a phone the table scrolls instead of breaking the layout. */
+.tw {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;    /* merges neighbouring cell borders into single lines */
+  font-size: 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+
+/* th = header cells, td = ordinary cells. */
+th,
+td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;    /* stops text wrapping onto a second line inside a cell */
+}
+
+th {
+  color: var(--mute);
+  font-weight: 500;
+}
+
+/* Right-aligns number columns (score and attendances). */
+.n {
+  text-align: right;
+}
+
+/* The "Remove" button inside table cells. */
+td button {
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--ink);
+  font: 500 13px Barlow, sans-serif;
+  cursor: pointer;
+}

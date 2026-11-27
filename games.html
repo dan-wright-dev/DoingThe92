@@ -1,0 +1,146 @@
+<!doctype html>
+<!-- Tells the browser this is a modern HTML5 page. Always the first line. -->
+<html lang="en-GB">
+<!-- lang="en-GB" says the text is British English, which helps screen readers and translation tools. -->
+
+<head>
+    <!-- <head> holds information ABOUT the page. None of it is displayed on the page itself. -->
+    <meta charset="utf-8">   <!-- lets the page show symbols like the en dash (–) correctly -->
+    <!-- Makes the page fit phone screens instead of shrinking to look like a tiny desktop page. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <!-- Text shown on the browser tab. -->
+    <title>Games log | Doing the 92</title>
+    <!-- Loads the Barlow fonts from Google Fonts (needs an internet connection). -->
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- Connects this page to style.css. Both pages share it, so they look the same. -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- <body> holds everything visible on the page. -->
+    <main>
+        <!-- A link back to the main page. href is the file it goes to. It must match the main file's name. -->
+        <a class="back" href="index.html">Back to the 92</a>
+
+        <h1>Games log</h1>
+
+        <!-- Empty on purpose. The JavaScript fills it with a summary such as "2 games logged. Dan has been to 1...".
+             id="sum" is the unique name the script uses to find this paragraph. -->
+        <p class="sub" id="sum"></p>
+
+        <!-- A wrapper so the table can scroll sideways on narrow screens (see .tw in style.css). -->
+        <div class="tw">
+            <!-- A table has: <thead> (the header), <tbody> (the body), <tr> (a row),
+                 <th> (a header cell) and <td> (an ordinary cell). -->
+            <table>
+                <thead>
+                    <tr>
+                        <!-- Each <th> is a column heading. class="n" right-aligns the number columns. -->
+                        <th>Date</th>
+                        <th>Home</th>
+                        <th class="n">Score</th>
+                        <th>Away</th>
+                        <th>Ground</th>
+                        <th class="n">Attendance</th>
+                        <th class="n">Away att.</th>
+                        <th>Who</th>
+                        <th></th>   <!-- an empty heading above the Remove buttons -->
+                    </tr>
+                </thead>
+                <!-- Starts empty. The JavaScript adds one row per logged game. -->
+                <tbody id="rows"></tbody>
+            </table>
+        </div>
+
+        <p class="note">Co-Authored With Claude.</p>
+    </main>
+
+    <!-- The JavaScript for this page. It sits at the end of the body so the table above already exists
+         when the code looks for it. -->
+    <script>
+        /* ---------- 1. LOAD THE SAVED GAMES ----------
+           The main page (index.html) saves games into localStorage, a small store inside the browser.
+           This page reads them from the same place, using the same name (the "key"). */
+        const GKEY = "doing-the-92-games";
+        let games = [];   // "let" because the list can change when a game is removed
+
+        // localStorage only holds text, so the games were saved as JSON text.
+        // JSON.parse turns that text back into a real list. try/catch means: if anything goes wrong
+        // (nothing saved yet, or storage blocked), carry on with an empty list instead of crashing.
+        try { const g = JSON.parse(localStorage.getItem(GKEY)); if (Array.isArray(g)) games = g } catch (e) { }
+
+        // Saves the list back after a game is removed. JSON.stringify turns the list into text.
+        function saveGames() { try { localStorage.setItem(GKEY, JSON.stringify(games)) } catch (e) { } }
+
+        /* ---------- 2. SMALL HELPER FUNCTIONS ---------- */
+
+        // Makes text safe to put inside HTML by swapping special characters (& < ") for safe versions.
+        // String(s) first turns whatever it is given into text.
+        function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;") }
+
+        // Formats a number with commas, e.g. 12345 becomes "12,345". An empty value stays empty.
+        // This is an "arrow function": (inputs) => result. "v == null" catches missing values.
+        const n = v => v === "" || v == null ? "" : Number(v).toLocaleString("en-GB");
+
+        // Turns the stored value "dan" or "seth" into a name for display.
+        // The ? : is a short if/else: condition ? valueIfTrue : valueIfFalse.
+        const name = p => p === "dan" ? "Dan" : "Seth";
+
+        /* ---------- 3. DRAW THE TABLE ----------
+           render() writes the summary line and builds the table rows from the games list.
+           It runs once when the page loads and again after a game is removed. */
+        function render() {
+            // c("dan") counts the games where "dan" is in the who list. filter() keeps matching items;
+            // .length is how many were kept.
+            const c = p => games.filter(g => g.who.includes(p)).length;
+
+            // Write the summary sentence into <p id="sum">. textContent sets plain text.
+            // The "games.length === 1 ? ..." part chooses "game" or "games" correctly.
+            document.getElementById("sum").textContent = games.length + (games.length === 1 ? " game" : " games") + " logged. Dan has been to " + c("dan") + ", Seth has been to " + c("seth") + ".";
+
+            const rows = document.getElementById("rows");   // the empty <tbody>
+
+            // If there are no games, show one row saying so, and stop. colspan="9" stretches the cell across all 9 columns.
+            if (!games.length) { rows.innerHTML = '<tr><td colspan="9">No games logged yet.</td></tr>'; return }
+
+            // Build the rows. Step by step:
+            // [...games]        makes a copy of the list, so sorting doesn't change the original
+            // .sort(...)        puts the newest date first (dates like "2026-11-27" sort correctly as text)
+            // .map(g => ...)    turns each game into a piece of HTML for its row
+            // .join("")         glues all the pieces into one long piece of text
+            rows.innerHTML = [...games].sort((a, b) => b.date.localeCompare(a.date)).map(g => {
+                // Turn "2026-11-27" into a friendly date like "27 Nov 2026".
+                // "T12:00:00" adds midday so time zones can't shift the date to the day before.
+                const d = new Date(g.date + "T12:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+                // The score, like "2–1". If either goals box was left blank, show just a dash.
+                const sc = g.hg === "" || g.hg == null || g.ag === "" || g.ag == null ? "–" : g.hg + "–" + g.ag;
+
+                // One table row. Text in `backticks` is a "template literal": anything inside ${ } is replaced by its value.
+                // esc() makes the typed text safe. "g.home || g.match || ''" means: use home if it exists,
+                // otherwise match (an older format), otherwise nothing.
+                // data-id stores this game's unique id on its Remove button, so the code knows which game to delete.
+                return `<tr><td>${esc(d)}</td><td>${esc(g.home || g.match || "")}</td><td class="n">${esc(sc)}</td><td>${esc(g.away || "")}</td><td>${esc(g.ground || g.club)}</td><td class="n">${n(g.att)}</td><td class="n">${n(g.aatt)}</td><td>${g.who.map(name).join(", ")}</td><td><button data-id="${g.id}" aria-label="Remove game on ${esc(d)}">Remove</button></td></tr>`;
+            }).join("");
+        }
+
+        /* ---------- 4. REMOVING A GAME ----------
+           One click listener on the whole table body catches clicks on every Remove button
+           ("event delegation"). That works even though the buttons are created by JavaScript. */
+        document.getElementById("rows").addEventListener("click", e => {
+            // e.target is the thing that was clicked. Only Remove buttons have a data-id, so
+            // clicking anywhere else gives no id and the function stops.
+            // confirm() shows an OK/Cancel box; if the user cancels, we stop too.
+            const id = e.target.dataset.id; if (!id || !confirm("Remove this game?")) return;
+
+            // Keep every game EXCEPT the one with this id, save the shorter list, and redraw.
+            games = games.filter(g => g.id !== id); saveGames(); render();
+        });
+
+        // The last line: draw the table for the first time when the page loads.
+        render();
+    </script>
+</body>
+
+</html>
